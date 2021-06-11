@@ -25,15 +25,16 @@ out_dir = sys.argv[2]
 
 def process_image(i):
     with Image(filename=f"{in_heic}[{i}]") as img:
-        # Convert square images to 16:9 ratio
-        if not out_dir.endswith("_Square") and img.width / img.height != 16 / 9:
+        img.compression_quality = 98
+        img.format = "jpeg"
+        theme_id = os.path.basename(out_dir).replace(' ', '_')
+
+        if img.width / img.height != 16 / 9:
+            img.save(filename=f"{out_dir}/{theme_id}_Square_{i + 1}.jpg")
             new_height = img.width * 9 // 16
             img.crop(0, (img.height - new_height) // 2, width=img.width, height=new_height)
 
-        img.compression_quality = 98
-        img.format = "jpeg"
-        img_id = os.path.basename(out_dir).replace(' ', '_')
-        img.save(filename=f"{out_dir}/{img_id}_{i + 1}.jpg")
+        img.save(filename=f"{out_dir}/{theme_id}_{i + 1}.jpg")
 
     print('.', end="", flush=True)
 
