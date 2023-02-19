@@ -1,6 +1,4 @@
-const FileSaver = require("file-saver");
 const webworkify = require("webworkify");
-
 const worker = webworkify(require("./worker"));
 
 worker.addEventListener("message", (e) => {
