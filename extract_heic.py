@@ -17,7 +17,7 @@ import re
 import sys
 from multiprocessing import Pool
 
-from wand.image import Image
+from wand.image import Image  # pip install Wand
 
 in_heic = sys.argv[1]
 out_dir = sys.argv[2]
@@ -43,6 +43,7 @@ if __name__ == "__main__":
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
 
+    metadata_type = None
     with open(in_heic, "rb") as fileobj:
         for line in fileobj:
             start_index = line.find(b"apple_desktop:")
@@ -51,18 +52,22 @@ if __name__ == "__main__":
                 match = re.match(r"apple_desktop:(\w+)=\"(.+?)\"", line[start_index:].decode("latin1"))
                 metadata_type = match.group(1)
                 metadata_b64 = match.group(2)
+                break
 
-    metadata_plist = plistlib.loads(base64.b64decode(metadata_b64), fmt=plistlib.FMT_BINARY)
-    metadata_xml = plistlib.dumps(metadata_plist, fmt=plistlib.FMT_XML)
+    if metadata_type is not None:
+        metadata_plist = plistlib.loads(base64.b64decode(metadata_b64), fmt=plistlib.FMT_BINARY)
+        metadata_xml = plistlib.dumps(metadata_plist, fmt=plistlib.FMT_XML)
 
-    with open(f"{out_dir}/metadata.{metadata_type}.xml", "wb") as fileobj:
-        fileobj.write(metadata_xml)
+        with open(f"{out_dir}/metadata.{metadata_type}.xml", "wb") as fileobj:
+            fileobj.write(metadata_xml)
 
-    print(f"Saved metadata of type apple_desktop:{metadata_type} to XML file")
+        print(f"Saved metadata of type apple_desktop:{metadata_type} to XML file")
 
-    num_frames = 0
-    while metadata_xml.count(b"<integer>%d</integer>" % num_frames):
-        num_frames += 1
+        num_frames = 0
+        while metadata_xml.count(b"<integer>%d</integer>" % num_frames):
+            num_frames += 1
+    else:
+        num_frames = 1
 
     print(f"Extracting {num_frames} frame(s) from HEIC", end="", flush=True)
 
