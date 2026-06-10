@@ -49,7 +49,7 @@ if __name__ == "__main__":
             start_index = line.find(b"apple_desktop:")
 
             if start_index != -1:
-                match = re.match(r"apple_desktop:(\w+)=\"(.+?)\"", line[start_index:].decode("latin1"))
+                match = re.match(r"apple_desktop:(\w+)(=\"(.+?)\"|>(.+?)</apple_desktop)", line[start_index:].decode("latin1"))
                 metadata_type = match.group(1)
                 metadata_b64 = match.group(2)
                 break
